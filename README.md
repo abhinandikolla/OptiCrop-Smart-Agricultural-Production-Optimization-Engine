@@ -1,98 +1,123 @@
 # OptiCrop – Smart Agricultural Production Optimization Engine
 
-OptiCrop is a complete, production-ready SaaS application designed to help farmers, researchers, and policymakers optimize agricultural production using environmental and soil parameters. 
-
-It predicts suitable crops, estimates expected yield, provides explainable AI (SHAP value feature attributions), conducts soil health assessments, coordinates weather intelligence with irrigation plans, and classifications leaf diseases using a PyTorch Convolutional Neural Network (CNN).
+OptiCrop is an intelligent, machine learning-based agricultural recommendation system designed to help farmers, agricultural researchers, and agribusinesses optimize crop production. The engine processes environmental and soil parameters to recommend the most suitable crop, predict expected crop yield, classify soil conditions, and provide actionable soil replenishment prescriptions.
 
 ---
 
 ## 🏛️ System Architecture Topology
 
-The application is structured into three main component layers:
+The application is built as a complete, lightweight, and responsive web application using the following stack:
 
 ```mermaid
 graph TD
-    Client[Next.js 15 Tailwind Client] -->|HTTP/JWT| API[FastAPI Backend Server]
-    API -->|Inference| ML[Scikit-Learn / PyTorch CNN Models]
-    API -->|Cache| Redis[(Redis Caching Service)]
-    API -->|Query| DB[(PostgreSQL Database)]
+    Client[HTML5 + CSS3 + Bootstrap 5 Frontend] -->|HTTP POST Form| App[Flask Web Application]
+    App -->|Inference| Models[Scikit-Learn ML Models]
+    App -->|CSV Logging| Storage[(user_predictions.csv)]
+    App -->|JSON Telemetry| Dashboard[Performance Analytics Dashboard]
 ```
 
-* **Frontend**: Next.js 15 (TypeScript, Tailwind CSS, Framer Motion, Recharts, TanStack React Query).
-* **Backend**: FastAPI, SQLAlchemy (declarative mapping, connection tests, automatic SQLite fallback).
-* **Machine Learning**: Scikit-Learn (Random Forest classifiers/regressors), XGBoost, LightGBM, and PyTorch (Leaf Disease CNN).
-* **Storage & Caching**: PostgreSQL, Redis (in-memory caching with transparent local memory dictionary fallback).
+* **Frontend**: HTML5, Vanilla CSS (Glassmorphism & animations), Bootstrap 5, Bootstrap Icons.
+* **Backend**: Flask web framework, modular Python endpoints, Jinja2 templating.
+* **Machine Learning & Analysis**:
+  * **Classifier Models**: K-Nearest Neighbors (KNN), Logistic Regression, Decision Tree, Random Forest (Winning model selected for prediction).
+  * **Clustering**: K-Means Clustering for soil categorization.
+  * **Regressor**: Random Forest Regressor for crop yield forecasting.
+  * **Data Processing**: Scikit-Learn (StandardScaler, LabelEncoder), Pandas, NumPy.
+  * **Analytics Plotting**: Matplotlib & Seaborn.
+* **Storage**: CSV-based data persistence (`datasets/user_predictions.csv`) logging user queries and predictions for future analytics.
 
 ---
 
 ## ⚙️ Quick Start Installation Guide
 
-### Option 1: Docker Compose (Fully Automated Production Setup)
-Make sure you have Docker and Docker Compose installed, then execute:
+### Standalone Local Setup
+
+#### Step 1: Set Up Python Virtual Environment
+Ensure you have Python 3.10+ installed. In your terminal, run:
 
 ```bash
-docker-compose up --build
+# Create virtual environment
+python -m venv .venv
+
+# Activate virtual environment
+# On Windows (PowerShell):
+.venv\Scripts\Activate.ps1
+# On macOS/Linux:
+source .venv/bin/activate
 ```
-* **Frontend Panel**: `http://localhost:3000`
-* **Backend Docs (Swagger)**: `http://localhost:8000/docs`
-* **PostgreSQL Database Port**: `5432`
-* **Redis Cache Port**: `6379`
 
-### Option 2: Standalone Local Setup (Easy Dev/Testing)
-This application includes automated fallback configurations. If PostgreSQL and Redis are not running, it automatically defaults to SQLite (`sqlite:///./opticrop.db`) and in-memory caches.
-
-#### Step 1: Run the ML Pipelines
-Ensure python libraries are installed, then run:
+#### Step 2: Install Dependencies
 ```bash
-# 1. Install dependencies
-pip install -r backend/requirements.txt
-
-# 2. Generate datasets
-python ml_pipeline/generate_datasets.py
-
-# 3. Train all models
-python ml_pipeline/train_crop_model.py
-python ml_pipeline/train_yield_model.py
-python ml_pipeline/train_disease_model.py
-
-# 4. Package models inside backend folder
-python ml_pipeline/copy_models.py
+pip install -r requirements.txt
 ```
 
-#### Step 2: Spin Up FastAPI Backend
+#### Step 3: Run the Data Generation & Model Training Pipeline
+To generate the agricultural datasets and train the machine learning models:
+
 ```bash
-# Run backend server
-uvicorn backend.app.main:app --reload --port 8000
-```
-Swagger UI will be active at `http://localhost:8000/docs`.
+# 1. Generate synthetic soil and yield datasets
+python generate_datasets.py
 
-#### Step 3: Run Next.js 15 Frontend
+# 2. Train all models, compare accuracies, and generate visualization plots
+python train_models.py
+```
+This generates:
+* Pickled model artifacts under `models/` (`best_model.pkl`, `scaler.pkl`, `label_encoder.pkl`, `kmeans_model.pkl`, `yield_model.pkl`, `yield_encoders.pkl`, `metadata.pkl`).
+* Model evaluation plots under `static/images/` (`model_comparison.png`, `confusion_matrix.png`, `feature_importance.png`).
+
+#### Step 4: Run Flask Web Application
 ```bash
-cd frontend
-npm install
-npm run dev
+python app.py
 ```
-Open `http://localhost:3000` to interact with the SaaS control board.
-
----
-
-## 🔑 Default Seed Credentials
-
-Upon startup, the database auto-seeds three distinct roles:
-
-| Role | Username / Email | Password |
-| :--- | :--- | :--- |
-| **Farmer** | `farmer@opticrop.com` | `farmer123` |
-| **Researcher** | `researcher@opticrop.com` | `researcher123` |
-| **Administrator** | `admin@opticrop.com` | `admin123` |
+Open your browser and navigate to `http://localhost:5000` to access the OptiCrop Optimizer dashboard.
 
 ---
 
 ## 🧪 Running Automated Unit Tests
 
-The backend includes a comprehensive test suite covering credentials, JWT validation, ML predictors, soil checkers, and CNN image classifications.
+The test suite validates home routing, classification endpoints, persistence logic, and API health status.
 
 ```bash
-python -m pytest backend/tests/
+# Execute unit tests with pytest
+python -m pytest tests/
 ```
-All tests execute against isolated SQLite in-memory databases with connection pooling.
+All tests execute successfully and verify that predictions are accurately recorded to the user data storage.
+
+---
+
+## 📁 Repository Directory Structure
+
+```
+SmartBridge/
+├── .venv/                   # Python virtual environment (ignored by git)
+├── datasets/                # Agricultural CSV datasets and predictions log
+│   ├── crop_recommendation_dataset.csv
+│   ├── crop_yield_dataset.csv
+│   └── user_predictions.csv
+├── models/                  # Serialized pickle (.pkl) model artifacts
+│   ├── best_model.pkl
+│   ├── kmeans_model.pkl
+│   ├── label_encoder.pkl
+│   ├── metadata.pkl
+│   ├── scaler.pkl
+│   ├── yield_encoders.pkl
+│   └── yield_model.pkl
+├── static/                  # Static assets (CSS, images, visual plots)
+│   ├── css/
+│   │   └── style.css
+│   └── images/
+│       ├── confusion_matrix.png
+│       ├── feature_importance.png
+│       └── model_comparison.png
+├── templates/               # Jinja2 HTML layout files
+│   ├── dashboard.html
+│   ├── index.html
+│   └── result.html
+├── tests/                   # Python test suite scripts
+│   └── test_app.py
+├── .gitignore               # Version control ignore specifications
+├── app.py                   # Main Flask backend controller
+├── generate_datasets.py     # Script to generate raw datasets
+├── requirements.txt         # Project package requirements list
+└── train_models.py          # Machine learning model training script
+```
