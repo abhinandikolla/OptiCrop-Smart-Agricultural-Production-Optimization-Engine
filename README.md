@@ -12,7 +12,7 @@ The application integrates machine learning pipelines with an elegant Flask web 
 graph TD
     Client["HTML5 + CSS3 + Bootstrap 5 Frontend"] -->|HTTP POST Form| App["Flask Web Application"]
     App -->|Inference| Models["Scikit-Learn ML Models"]
-    App -->|CSV Logging| Storage[("user_predictions.csv")]
+    App -->|CSV Logging| Storage["CSV Storage: user_predictions.csv"]
     App -->|JSON Telemetry| Dashboard["Performance Analytics Dashboard"]
 ```
 
