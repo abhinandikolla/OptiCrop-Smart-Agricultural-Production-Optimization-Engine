@@ -10,10 +10,10 @@ The application integrates machine learning pipelines with an elegant Flask web 
 
 ```mermaid
 graph TD
-    Client[HTML5 + CSS3 + Bootstrap 5 Frontend] -->|HTTP POST Form| App[Flask Web Application]
-    App -->|Inference| Models[Scikit-Learn ML Models]
-    App -->|CSV Logging| Storage[(user_predictions.csv)]
-    App -->|JSON Telemetry| Dashboard[Performance Analytics Dashboard]
+    Client["HTML5 + CSS3 + Bootstrap 5 Frontend"] -->|HTTP POST Form| App["Flask Web Application"]
+    App -->|Inference| Models["Scikit-Learn ML Models"]
+    App -->|CSV Logging| Storage[("user_predictions.csv")]
+    App -->|JSON Telemetry| Dashboard["Performance Analytics Dashboard"]
 ```
 
 * **Frontend**: Responsive HTML5, Bootstrap 5, Bootstrap Icons, custom glassmorphism styling, and a global looping agricultural video background.
