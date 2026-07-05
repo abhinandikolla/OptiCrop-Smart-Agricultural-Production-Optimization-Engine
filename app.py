@@ -2,9 +2,35 @@ import os
 import pickle
 import numpy as np
 import pandas as pd
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, session, redirect, url_for
 
 app = Flask(__name__)
+app.secret_key = os.environ.get("FLASK_SECRET_KEY", "opti_crop_secure_session_key_98234")
+
+@app.before_request
+def require_login():
+    if request.path.startswith('/static/') or request.path in ['/login', '/logout', '/api/health'] or request.endpoint == 'static':
+        return
+    if not session.get("logged_in"):
+        return redirect(url_for("login"))
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    error = None
+    if request.method == "POST":
+        email = request.form.get("email")
+        password = request.form.get("password")
+        if email == "agronomist@opticrop.io" and password == "admin123":
+            session["logged_in"] = True
+            return redirect(url_for("index"))
+        else:
+            error = "Invalid credentials."
+    return render_template("login.html", error=error)
+
+@app.route("/logout")
+def logout():
+    session.pop("logged_in", None)
+    return redirect(url_for("login"))
 
 # Load models and configurations on startup
 models = {}
@@ -199,9 +225,43 @@ def dashboard():
     if "meta" not in models:
         return "Analytics metadata is not available. Please run model training first.", 500
     
+    history_file = "datasets/user_predictions.csv"
+    user_stats = {
+        "total_queries": 0,
+        "avg_n": 0,
+        "avg_p": 0,
+        "avg_k": 0,
+        "top_crop": "N/A",
+        "recent_predictions": [],
+        "crop_distribution": {}
+    }
+    
+    if os.path.exists(history_file):
+        try:
+            df = pd.read_csv(history_file)
+            if not df.empty:
+                user_stats["total_queries"] = len(df)
+                user_stats["avg_n"] = round(df["N"].mean(), 1) if "N" in df.columns else 0
+                user_stats["avg_p"] = round(df["P"].mean(), 1) if "P" in df.columns else 0
+                user_stats["avg_k"] = round(df["K"].mean(), 1) if "K" in df.columns else 0
+                if "crop" in df.columns and len(df["crop"].dropna()) > 0:
+                    user_stats["top_crop"] = df["crop"].value_counts().idxmax().upper()
+                
+                # Crop distribution counts
+                if "crop" in df.columns:
+                    crop_counts = df["crop"].value_counts().to_dict()
+                    user_stats["crop_distribution"] = {str(k).upper(): int(v) for k, v in crop_counts.items()}
+                
+                # Get the last 10 predictions for the table (latest first)
+                recent_df = df.tail(10).iloc[::-1]
+                user_stats["recent_predictions"] = recent_df.to_dict(orient="records")
+        except Exception as e:
+            print(f"Error reading user prediction history: {e}")
+            
     return render_template(
         "dashboard.html",
-        meta=models["meta"]
+        meta=models["meta"],
+        user_stats=user_stats
     )
 
 

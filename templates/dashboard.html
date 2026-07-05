@@ -10,6 +10,8 @@
   <link href="/static/css/style.css" rel="stylesheet">
   <!-- Bootstrap Icons -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
@@ -17,60 +19,7 @@
   <div class="orb orb-green"></div>
   <div class="orb orb-blue"></div>
 
-  <!-- Client-side Authentication Gate -->
-  <div id="login-gate" class="position-fixed top-0 start-0 w-100 h-100 d-none align-items-center justify-content-center" style="z-index: 9999; background: var(--color-bg); background-image: radial-gradient(circle at 100% 0%, rgba(165, 214, 167, 0.25) 0px, transparent 50%), radial-gradient(circle at 0% 100%, rgba(144, 202, 249, 0.15) 0px, transparent 50%); background-attachment: fixed;">
-    <div class="orb orb-green"></div>
-    <div class="orb orb-blue"></div>
-    
-    <div class="login-container fade-in">
-      <div class="login-left" style="background-image: url('/static/images/crop_farmers.png');">
-        <div class="login-left-content">
-          <span class="badge bg-success-subtle-custom border-success-custom px-3 py-1.5 rounded-pill mb-3 uppercase tracking-wide font-bold fs-8" style="background: rgba(22, 163, 74, 0.25); color: #fff; border-color: rgba(255, 255, 255, 0.4); text-transform: uppercase;">
-            OptiCrop System
-          </span>
-          <h3 class="display-7 font-black tracking-tight text-white mb-2">Smart Agricultural Production Engine</h3>
-          <p class="text-white-50 mb-0 fs-7">
-            Real-time soil analysis, crop yield prediction, and environment-optimized advice powered by advanced machine learning models.
-          </p>
-        </div>
-      </div>
-      <div class="login-right">
-        <div class="text-center mb-4">
-          <i class="bi bi-sprout-fill text-success fs-2 mb-2 d-inline-block pulse-icon"></i>
-          <h3 class="font-black tracking-tight text-dark mb-1">Welcome Back</h3>
-          <p class="text-secondary fs-8 uppercase font-bold tracking-wider mb-0">Agronomist Security Access</p>
-        </div>
 
-        <div class="login-credentials-box">
-          <div class="d-flex justify-content-between align-items-center mb-1">
-            <span class="credentials-title"><i class="bi bi-info-circle-fill"></i> Credentials</span>
-            <button type="button" class="btn btn-sm btn-link text-success p-0 fs-8 font-bold text-decoration-none" onclick="fillDemoCredentials()">Use Demo</button>
-          </div>
-          <div class="credentials-details">
-            <div>Email: <code>agronomist@opticrop.io</code></div>
-            <div>Password: <code>admin123</code></div>
-          </div>
-        </div>
-
-        <form id="login-form">
-          <div class="mb-3">
-            <label for="login-email" class="form-label text-secondary font-semibold uppercase tracking-wider fs-8">Email Address</label>
-            <input type="email" class="form-control" id="login-email" required placeholder="agronomist@opticrop.io">
-          </div>
-          <div class="mb-3">
-            <label for="login-password" class="form-label text-secondary font-semibold uppercase tracking-wider fs-8">Password</label>
-            <input type="password" class="form-control" id="login-password" required placeholder="••••••••">
-          </div>
-          <div id="login-error" class="text-danger fs-8 font-semibold mb-3 d-none">
-            <i class="bi bi-exclamation-circle-fill"></i> Invalid credentials.
-          </div>
-          <button type="submit" class="w-100 btn-premium py-2.5">
-            <i class="bi bi-box-arrow-in-right"></i> Authenticate Session
-          </button>
-        </form>
-      </div>
-    </div>
-  </div>
 
   <!-- Mobile Top Navigation Header (Visible only on mobile/tablet) -->
   <nav class="navbar navbar-expand-lg sticky-top navbar-mobile">
@@ -91,7 +40,7 @@
             <a class="nav-link-custom active" href="/dashboard"><i class="bi bi-graph-up-arrow"></i> Performance Analytics</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link-custom text-danger" href="#" onclick="localStorage.removeItem('optiCrop_loggedIn'); window.location.reload(); return false;"><i class="bi bi-box-arrow-right"></i> Sign Out</a>
+            <a class="nav-link-custom text-danger" href="/logout"><i class="bi bi-box-arrow-right"></i> Sign Out</a>
           </li>
         </ul>
       </div>
@@ -151,7 +100,7 @@
               <div class="profile-role">Active Session</div>
             </div>
           </div>
-          <a href="#" onclick="localStorage.removeItem('optiCrop_loggedIn'); window.location.reload(); return false;" class="text-secondary" title="Sign Out" style="transition: color 0.2s;">
+          <a href="/logout" class="text-secondary" title="Sign Out" style="transition: color 0.2s;">
             <i class="bi bi-box-arrow-right fs-5"></i>
           </a>
         </div>
@@ -180,94 +129,268 @@
       <!-- Dashboard Body -->
       <div class="container-fluid px-0 fade-in">
         
-        <!-- Title Section -->
-        <div class="text-center text-md-start mb-5">
-          <span class="badge bg-success-subtle-custom border-success-custom px-3 py-2 rounded-pill mb-3 uppercase tracking-wide font-bold fs-7">
-            System Telemetry
-          </span>
-          <h2 class="display-6 font-black tracking-tight mb-2"><span class="text-gradient">Model Performance & Telemetry Dashboard</span></h2>
-          <p class="text-secondary max-w-lg">
-            Compare classification accuracy, inspect relative feature weights, and check error distributions across model evaluations.
-          </p>
-        </div>
+        <!-- Tabs Navigation -->
+        <ul class="nav nav-tabs border-0 mb-5 gap-3" id="dashboardTabs" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active px-4 py-2.5 rounded-pill font-bold border-0" id="insights-tab" data-bs-toggle="tab" data-bs-target="#insights-content" type="button" role="tab" aria-controls="insights-content" aria-selected="true" style="background: rgba(16, 185, 129, 0.15); color: var(--color-primary); transition: all 0.3s ease;">
+              <i class="bi bi-pie-chart-fill"></i> Field Insights
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link px-4 py-2.5 rounded-pill font-bold border-0" id="telemetry-tab" data-bs-toggle="tab" data-bs-target="#telemetry-content" type="button" role="tab" aria-controls="telemetry-content" aria-selected="false" style="background: rgba(255, 255, 255, 0.05); color: var(--color-text-secondary); transition: all 0.3s ease;">
+              <i class="bi bi-cpu-fill"></i> ML Model Telemetry
+            </button>
+          </li>
+        </ul>
 
-        <!-- Models Comparison Table -->
-        <div class="premium-card p-4 p-md-5 mb-5">
-          <h4 class="text-dark mb-4 d-flex align-items-center gap-2 font-bold">
-            <i class="bi bi-table text-success"></i> Model Precision Comparison Matrix
-          </h4>
-          <div class="table-responsive">
-            <table class="table table-dark table-hover align-middle mb-0 fs-7">
-              <thead>
-                <tr class="text-secondary border-b border-slate-200 uppercase tracking-wider fs-8 font-bold">
-                  <th class="py-3 px-4">Classifier Model</th>
-                  <th class="py-3 px-4 text-center">Accuracy</th>
-                  <th class="py-3 px-4 text-center">Weighted Precision</th>
-                  <th class="py-3 px-4 text-center">Weighted Recall</th>
-                  <th class="py-3 px-4 text-center text-success">Weighted F1-Score</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for name, stats in meta.comparison.items() %}
-                  <tr>
-                    <td class="py-3 px-4 font-semibold text-dark d-flex align-items-center gap-3">
-                      {% if name == meta.best_model_name %}
-                        <span class="badge bg-success-subtle-custom text-success border border-success-custom font-bold px-2 py-1 rounded-pill d-inline-flex align-items-center gap-1.5">
-                          <span class="spinner-grow spinner-grow-sm text-success" style="width: 6px; height: 6px;" role="status"></span> Winning
-                        </span>
-                      {% else %}
-                        <span class="badge bg-light text-secondary border border-slate-200 font-semibold px-2 py-1 rounded-pill d-inline-flex align-items-center gap-1.5">
-                          <span class="rounded-circle bg-secondary" style="width: 5px; height: 5px;"></span> Candidate
-                        </span>
-                      {% endif %}
-                      {{ name }}
-                    </td>
-                    <td class="py-3 px-4 text-center font-bold text-dark">{{ (stats.accuracy * 100) | round(2) }}%</td>
-                    <td class="py-3 px-4 text-center text-secondary">{{ (stats.precision * 100) | round(2) }}%</td>
-                    <td class="py-3 px-4 text-center text-secondary">{{ (stats.recall * 100) | round(2) }}%</td>
-                    <td class="py-3 px-4 text-center text-success font-extrabold">{{ (stats.f1 * 100) | round(2) }}%</td>
-                  </tr>
-                {% endfor %}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- Analytics Visual Charts -->
-        <div class="row g-4">
+        <div class="tab-content" id="dashboardTabsContent">
           
-          <!-- Comparison Bar Plot -->
-          <div class="col-md-6">
-            <div class="premium-card p-4 h-100">
-              <h5 class="text-dark mb-3 font-bold d-flex align-items-center gap-2">
-                <i class="bi bi-bar-chart-fill text-success"></i> Model Accuracy Comparison
-              </h5>
-              <div class="text-center p-3 rounded-3 border border-slate-100 bg-light">
-                <img src="/static/images/model_comparison.png" alt="Model Comparison" class="img-fluid rounded shadow-sm max-h-350">
+          <!-- Tab 1: Field Insights -->
+          <div class="tab-pane fade show active" id="insights-content" role="tabpanel" aria-labelledby="insights-tab">
+            <!-- Welcome Banner -->
+            <div class="text-center text-md-start mb-5">
+              <span class="badge bg-success-subtle-custom border-success-custom px-3 py-2 rounded-pill mb-3 uppercase tracking-wide font-bold fs-7">
+                Agronomist Dashboard
+              </span>
+              <h2 class="display-6 font-black tracking-tight mb-2"><span class="text-gradient">Field Optimization Insights</span></h2>
+              <p class="text-secondary max-w-lg">
+                Inspect metrics aggregated from logged soil testing, check recommended crop frequencies, and review past production runs.
+              </p>
+            </div>
+
+            <!-- Stats Metrics Row -->
+            <div class="row g-4 mb-5">
+              <div class="col-md-3">
+                <div class="premium-card p-4 text-center text-md-start">
+                  <span class="text-secondary font-bold uppercase tracking-wider fs-9 mb-1 d-block">Total Queries Run</span>
+                  <h3 class="display-6 font-black tracking-tight mb-0 text-gradient">{{ user_stats.total_queries }}</h3>
+                  <p class="text-secondary fs-8 mt-2 mb-0">Total soil profiles optimized</p>
+                </div>
               </div>
+              <div class="col-md-3">
+                <div class="premium-card p-4 text-center text-md-start">
+                  <span class="text-secondary font-bold uppercase tracking-wider fs-9 mb-1 d-block">Top Recommended Crop</span>
+                  <h3 class="fs-4 font-black tracking-tight mb-0 text-success" style="margin-top: 10px; margin-bottom: 10px;">{{ user_stats.top_crop }}</h3>
+                  <p class="text-secondary fs-8 mb-0">Most frequent output prediction</p>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="premium-card p-4 text-center text-md-start">
+                  <span class="text-secondary font-bold uppercase tracking-wider fs-9 mb-1 d-block">Average N-P-K Levels</span>
+                  <h4 class="font-bold mb-0 text-dark" style="font-size: 1.15rem; margin-top: 12px; margin-bottom: 12px;">
+                    <span class="text-success">N</span>:{{ user_stats.avg_n }} | 
+                    <span class="text-success">P</span>:{{ user_stats.avg_p }} | 
+                    <span class="text-success">K</span>:{{ user_stats.avg_k }}
+                  </h4>
+                  <p class="text-secondary fs-8 mb-0">Average soil chemical values (kg/ha)</p>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="premium-card p-4 text-center text-md-start">
+                  <span class="text-secondary font-bold uppercase tracking-wider fs-9 mb-1 d-block">Engine Security</span>
+                  <h3 class="fs-4 font-black tracking-tight mb-0 text-primary" style="margin-top: 10px; margin-bottom: 10px;"><i class="bi bi-shield-fill-check"></i> Session</h3>
+                  <p class="text-secondary fs-8 mb-0">Authorized Admin Mode</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Chart and Summary Row -->
+            <div class="row g-4 mb-5">
+              <div class="col-md-6">
+                <div class="premium-card p-4 h-100">
+                  <h5 class="text-dark mb-4 font-bold d-flex align-items-center gap-2">
+                    <i class="bi bi-pie-chart-fill text-success"></i> Crop Recommendation Distribution
+                  </h5>
+                  {% if user_stats.total_queries == 0 %}
+                    <div class="text-center py-5">
+                      <i class="bi bi-bar-chart-line text-secondary fs-2 mb-2 d-block"></i>
+                      <p class="text-secondary fs-8">No data to display in chart yet.</p>
+                    </div>
+                  {% else %}
+                    <div style="position: relative; height: 260px; width: 100%;">
+                      <canvas id="cropChart"></canvas>
+                    </div>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="premium-card p-4 h-100 d-flex flex-column justify-content-between">
+                  <div>
+                    <h5 class="text-dark mb-3 font-bold d-flex align-items-center gap-2">
+                      <i class="bi bi-info-circle-fill text-success"></i> About Crop Predictions Data
+                    </h5>
+                    <p class="text-secondary fs-7 leading-relaxed">
+                      This panel aggregates coordinates from real-time inputs processed by the OptiCrop system. When farmers execute predictions, parameters are evaluated against serialized Scikit-Learn pipelines.
+                    </p>
+                    <p class="text-secondary fs-7 leading-relaxed mb-0 mt-2">
+                      The logged measurements are stored in <code>datasets/user_predictions.csv</code>, allowing you to easily capture and audit the soil telemetry for regional agricultural trends.
+                    </p>
+                  </div>
+                  <div class="alert alert-premium mb-0 d-flex align-items-center gap-3 mt-3">
+                    <i class="bi bi-check-circle-fill text-success fs-3"></i>
+                    <div>
+                      <h6 class="font-bold mb-0 text-dark fs-8">Audit Logs Secure</h6>
+                      <p class="text-secondary fs-9 mb-0">All predictions automatically persist to the CSV storage.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Prediction History Table -->
+            <div class="premium-card p-4 p-md-5 mb-5">
+              <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4 class="text-dark mb-0 d-flex align-items-center gap-2 font-bold">
+                  <i class="bi bi-journal-text text-success"></i> Recent Inferences Audit Table
+                </h4>
+                {% if user_stats.total_queries > 0 %}
+                  <span class="badge bg-success-subtle-custom border-success-custom px-2 py-1 fs-9 rounded-pill font-bold">Showing last 10 predictions</span>
+                {% endif %}
+              </div>
+              
+              {% if user_stats.total_queries == 0 %}
+                <div class="text-center p-5 rounded-4 bg-light border border-slate-100">
+                  <i class="bi bi-database-fill-x text-secondary fs-1 mb-3 d-block"></i>
+                  <h5 class="text-dark font-bold">No predictions logged yet</h5>
+                  <p class="text-secondary fs-8 max-w-sm mx-auto">Go to the Field Optimizer and run some predictions to see telemetry populated here.</p>
+                </div>
+              {% else %}
+                <div class="table-responsive">
+                  <table class="table table-dark table-hover align-middle mb-0 fs-7">
+                    <thead>
+                      <tr class="text-secondary border-b border-slate-200 uppercase tracking-wider fs-8 font-bold">
+                        <th class="py-3 px-4">Soil Profile</th>
+                        <th class="py-3 px-4 text-center">N-P-K</th>
+                        <th class="py-3 px-4 text-center">Temp/Humidity</th>
+                        <th class="py-3 px-4 text-center">pH</th>
+                        <th class="py-3 px-4 text-center">Rainfall</th>
+                        <th class="py-3 px-4 text-center">Region/Season</th>
+                        <th class="py-3 px-4 text-center text-success">Recommended Crop</th>
+                        <th class="py-3 px-4 text-center">Est. Yield</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for row in user_stats.recent_predictions %}
+                        <tr>
+                          <td class="py-3 px-4 font-semibold text-dark">
+                            <span class="badge bg-light text-secondary border border-slate-200 font-semibold px-2 py-1 rounded-pill">
+                              Cluster {{ row.soil_cluster }}
+                            </span>
+                          </td>
+                          <td class="py-3 px-4 text-center font-semibold text-dark">
+                            {{ row.N|round|int }}-{{ row.P|round|int }}-{{ row.K|round|int }}
+                          </td>
+                          <td class="py-3 px-4 text-center text-secondary">
+                            {{ row.temperature|round(1) }}°C / {{ row.humidity|round(1) }}%
+                          </td>
+                          <td class="py-3 px-4 text-center text-secondary font-semibold">{{ row.ph|round(1) }}</td>
+                          <td class="py-3 px-4 text-center text-secondary">{{ row.rainfall|round(1) }} mm</td>
+                          <td class="py-3 px-4 text-center text-secondary fs-8">
+                            {{ row.location }}<br>
+                            <span class="text-success font-semibold">{{ row.season }}</span>
+                          </td>
+                          <td class="py-3 px-4 text-center text-success font-bold fs-7">{{ row.crop }}</td>
+                          <td class="py-3 px-4 text-center font-bold text-dark">{{ row.yield }} t/ha</td>
+                        </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              {% endif %}
             </div>
           </div>
 
-          <!-- Feature Importance Plot -->
-          <div class="col-md-6">
-            <div class="premium-card p-4 h-100">
-              <h5 class="text-dark mb-3 font-bold d-flex align-items-center gap-2">
-                <i class="bi bi-diagram-3-fill text-success"></i> Random Forest Feature Importances
-              </h5>
-              <div class="text-center p-3 rounded-3 border border-slate-100 bg-light">
-                <img src="/static/images/feature_importance.png" alt="Feature Importance" class="img-fluid rounded shadow-sm max-h-350">
+          <!-- Tab 2: Model Telemetry -->
+          <div class="tab-pane fade" id="telemetry-content" role="tabpanel" aria-labelledby="telemetry-tab">
+            <!-- Welcome Banner -->
+            <div class="text-center text-md-start mb-5">
+              <span class="badge bg-success-subtle-custom border-success-custom px-3 py-2 rounded-pill mb-3 uppercase tracking-wide font-bold fs-7">
+                System Telemetry
+              </span>
+              <h2 class="display-6 font-black tracking-tight mb-2"><span class="text-gradient">Model Performance & Telemetry Dashboard</span></h2>
+              <p class="text-secondary max-w-lg">
+                Compare classification accuracy, inspect relative feature weights, and check error distributions across model evaluations.
+              </p>
+            </div>
+
+            <!-- Models Comparison Table -->
+            <div class="premium-card p-4 p-md-5 mb-5">
+              <h4 class="text-dark mb-4 d-flex align-items-center gap-2 font-bold">
+                <i class="bi bi-table text-success"></i> Model Precision Comparison Matrix
+              </h4>
+              <div class="table-responsive">
+                <table class="table table-dark table-hover align-middle mb-0 fs-7">
+                  <thead>
+                    <tr class="text-secondary border-b border-slate-200 uppercase tracking-wider fs-8 font-bold">
+                      <th class="py-3 px-4">Classifier Model</th>
+                      <th class="py-3 px-4 text-center">Accuracy</th>
+                      <th class="py-3 px-4 text-center">Weighted Precision</th>
+                      <th class="py-3 px-4 text-center">Weighted Recall</th>
+                      <th class="py-3 px-4 text-center text-success">Weighted F1-Score</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for name, stats in meta.comparison.items() %}
+                      <tr>
+                        <td class="py-3 px-4 font-semibold text-dark d-flex align-items-center gap-3">
+                          {% if name == meta.best_model_name %}
+                            <span class="badge bg-success-subtle-custom text-success border border-success-custom font-bold px-2 py-1 rounded-pill d-inline-flex align-items-center gap-1.5">
+                              <span class="spinner-grow spinner-grow-sm text-success" style="width: 6px; height: 6px;" role="status"></span> Winning
+                            </span>
+                          {% else %}
+                            <span class="badge bg-light text-secondary border border-slate-200 font-semibold px-2 py-1 rounded-pill d-inline-flex align-items-center gap-1.5">
+                              <span class="rounded-circle bg-secondary" style="width: 5px; height: 5px;"></span> Candidate
+                            </span>
+                          {% endif %}
+                          {{ name }}
+                        </td>
+                        <td class="py-3 px-4 text-center font-bold text-dark">{{ (stats.accuracy * 100) | round(2) }}%</td>
+                        <td class="py-3 px-4 text-center text-secondary">{{ (stats.precision * 100) | round(2) }}%</td>
+                        <td class="py-3 px-4 text-center text-secondary">{{ (stats.recall * 100) | round(2) }}%</td>
+                        <td class="py-3 px-4 text-center text-success font-extrabold">{{ (stats.f1 * 100) | round(2) }}%</td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
               </div>
             </div>
-          </div>
 
-          <!-- Confusion Matrix Heatmap -->
-          <div class="col-12">
-            <div class="premium-card p-4">
-              <h5 class="text-dark mb-3 font-bold d-flex align-items-center gap-2">
-                <i class="bi bi-grid-3x3-gap-fill text-success"></i> Classification Confusion Matrix Heatmap
-              </h5>
-              <div class="text-center p-3 rounded-3 border border-slate-100 bg-light">
-                <img src="/static/images/confusion_matrix.png" alt="Confusion Matrix" class="img-fluid rounded shadow-sm">
+            <!-- Analytics Visual Charts -->
+            <div class="row g-4">
+              <!-- Comparison Bar Plot -->
+              <div class="col-md-6">
+                <div class="premium-card p-4 h-100">
+                  <h5 class="text-dark mb-3 font-bold d-flex align-items-center gap-2">
+                    <i class="bi bi-bar-chart-fill text-success"></i> Model Accuracy Comparison
+                  </h5>
+                  <div class="text-center p-3 rounded-3 border border-slate-100 bg-light">
+                    <img src="/static/images/model_comparison.png" alt="Model Comparison" class="img-fluid rounded shadow-sm max-h-350">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Feature Importance Plot -->
+              <div class="col-md-6">
+                <div class="premium-card p-4 h-100">
+                  <h5 class="text-dark mb-3 font-bold d-flex align-items-center gap-2">
+                    <i class="bi bi-diagram-3-fill text-success"></i> Random Forest Feature Importances
+                  </h5>
+                  <div class="text-center p-3 rounded-3 border border-slate-100 bg-light">
+                    <img src="/static/images/feature_importance.png" alt="Feature Importance" class="img-fluid rounded shadow-sm max-h-350">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Confusion Matrix Heatmap -->
+              <div class="col-12">
+                <div class="premium-card p-4">
+                  <h5 class="text-dark mb-3 font-bold d-flex align-items-center gap-2">
+                    <i class="bi bi-grid-3x3-gap-fill text-success"></i> Classification Confusion Matrix Heatmap
+                  </h5>
+                  <div class="text-center p-3 rounded-3 border border-slate-100 bg-light">
+                    <img src="/static/images/confusion_matrix.png" alt="Confusion Matrix" class="img-fluid rounded shadow-sm">
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -279,47 +402,76 @@
 
   </div>
 
-  <!-- Authentication Script -->
+  <!-- Crop Data Script & Tab Logic -->
+  <script id="crop-data" type="application/json">
+    {{ user_stats.crop_distribution | tojson }}
+  </script>
   <script>
-    function fillDemoCredentials() {
-      document.getElementById('login-email').value = 'agronomist@opticrop.io';
-      document.getElementById('login-password').value = 'admin123';
-    }
-
-    (function() {
-      const loggedIn = localStorage.getItem('optiCrop_loggedIn') === 'true';
-      const loginGate = document.getElementById('login-gate');
-      const appContainer = document.querySelector('.app-container');
-      const mobileNav = document.querySelector('.navbar-mobile');
-
-      if (!loggedIn) {
-        if (appContainer) appContainer.style.setProperty('display', 'none', 'important');
-        if (mobileNav) mobileNav.style.setProperty('display', 'none', 'important');
-        loginGate.classList.remove('d-none');
-        loginGate.classList.add('d-flex');
-      } else {
-        if (appContainer) appContainer.style.removeProperty('display');
-        loginGate.classList.add('d-none');
-      }
-
-      document.getElementById('login-form')?.addEventListener('submit', function(e) {
-        e.preventDefault();
-        const email = document.getElementById('login-email').value;
-        const pass = document.getElementById('login-password').value;
-        const err = document.getElementById('login-error');
-
-        if (email === 'agronomist@opticrop.io' && pass === 'admin123') {
-          localStorage.setItem('optiCrop_loggedIn', 'true');
-          err.classList.add('d-none');
-          loginGate.classList.remove('d-flex');
-          loginGate.classList.add('d-none');
-          if (appContainer) appContainer.style.removeProperty('display');
-          window.location.reload();
-        } else {
-          err.classList.remove('d-none');
-        }
+    document.addEventListener("DOMContentLoaded", function() {
+      // Toggle Tab style dynamic highlight
+      document.querySelectorAll('#dashboardTabs button').forEach(button => {
+        button.addEventListener('shown.bs.tab', function (event) {
+          event.target.style.background = 'rgba(16, 185, 129, 0.15)';
+          event.target.style.color = 'var(--color-primary)';
+          
+          event.relatedTarget.style.background = 'rgba(255, 255, 255, 0.05)';
+          event.relatedTarget.style.color = 'var(--color-text-secondary)';
+        });
       });
-    })();
+
+      // Chart.js Doughnut rendering
+      const dataElement = document.getElementById("crop-data");
+      if (dataElement) {
+        try {
+          const cropData = JSON.parse(dataElement.textContent || "{}");
+          const labels = Object.keys(cropData);
+          const values = Object.values(cropData);
+          
+          if (labels.length > 0) {
+            const ctx = document.getElementById("cropChart").getContext("2d");
+            new Chart(ctx, {
+              type: "doughnut",
+              data: {
+                labels: labels,
+                datasets: [{
+                  data: values,
+                  backgroundColor: [
+                    "#10B981", // Emerald
+                    "#3B82F6", // Blue
+                    "#F59E0B", // Amber
+                    "#EF4444", // Red
+                    "#8B5CF6", // Purple
+                    "#EC4899", // Pink
+                    "#14B8A6"  // Teal
+                  ],
+                  borderColor: "rgba(9, 13, 22, 0.5)",
+                  borderWidth: 2
+                }]
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                  legend: {
+                    position: "right",
+                    labels: {
+                      color: "#9CA3AF",
+                      font: {
+                        family: "Plus Jakarta Sans",
+                        weight: "bold",
+                        size: 11
+                      }
+                    }
+                  }
+                }
+              }
+            });
+          }
+        } catch (e) {
+          console.error("Failed to render crop distribution chart: ", e);
+        }
+      }
+    });
   </script>
 
   <!-- Bootstrap Bundle JS -->

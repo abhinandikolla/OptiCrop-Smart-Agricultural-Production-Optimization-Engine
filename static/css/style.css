@@ -1,22 +1,26 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&display=swap');
 
 :root {
-  --color-primary: #2E7D32;
-  --color-secondary: #66BB6A;
-  --color-accent: #3B82F6;
-  --color-success: #16A34A;
+  --color-primary: #10B981; /* Premium Emerald/Mint Green */
+  --color-secondary: #34D399; /* Lighter Mint */
+  --color-accent: #60A5FA; /* Bright light blue */
+  --color-success: #10B981;
   --color-warning: #F59E0B;
-  --color-error: #DC2626;
-  --color-bg: #EEF5ED; /* Calm light green background tint */
-  --color-surface: rgba(255, 255, 255, 0.7); /* Translucent white */
-  --color-text-primary: #192E1C; /* Deep slate-green text */
-  --color-text-secondary: #556E5A; /* Sage-green secondary text */
-  --color-border: rgba(255, 255, 255, 0.6); /* Refractive border */
+  --color-error: #EF4444;
+  --color-bg: #090D16; /* Deep dark space background */
+  --color-surface: rgba(17, 25, 40, 0.7); /* Translucent dark slate card bg */
+  --color-text-primary: #F3F4F6; /* Bright text */
+  --color-text-secondary: #9CA3AF; /* Muted gray text */
+  --color-border: rgba(255, 255, 255, 0.08); /* Sleek translucent border */
   
-  --shadow-sm: 0 1px 2px 0 rgba(34, 76, 36, 0.03);
-  --shadow-md: 0 10px 30px 0 rgba(34, 76, 36, 0.05), 0 1px 3px 0 rgba(34, 76, 36, 0.02);
-  --shadow-lg: 0 20px 40px -15px rgba(34, 76, 36, 0.12), 0 4px 16px 0 rgba(34, 76, 36, 0.03);
-  --shadow-premium: 0 30px 60px -15px rgba(46, 125, 50, 0.1), 0 0 0 1px rgba(46, 125, 50, 0.02);
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 10px 30px 0 rgba(0, 0, 0, 0.2), 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 20px 40px -15px rgba(0, 0, 0, 0.35), 0 4px 16px 0 rgba(0, 0, 0, 0.15);
+  --shadow-premium: 0 30px 60px -15px rgba(16, 185, 129, 0.15), 0 0 0 1px rgba(16, 185, 129, 0.05);
+  
+  --color-surface-hover: rgba(255, 255, 255, 0.05);
+  --color-input-bg: rgba(17, 24, 39, 0.6);
+  --color-input-focus-bg: rgba(17, 24, 39, 0.95);
 }
 
 /* Global Styles */
@@ -841,7 +845,182 @@ select.glass-input:focus, select.form-select:focus {
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: radial-gradient(circle at 100% 0%, rgba(165, 214, 167, 0.1) 0px, transparent 50%), radial-gradient(circle at 0% 100%, rgba(144, 202, 249, 0.05) 0px, transparent 50%);
+  background: radial-gradient(circle at 100% 0%, rgba(16, 185, 129, 0.15) 0px, transparent 50%), radial-gradient(circle at 0% 100%, rgba(59, 130, 246, 0.1) 0px, transparent 50%);
   z-index: -1;
   pointer-events: none;
+}
+
+/* --- Dark Theme Custom Overrides --- */
+
+/* Override bootstrap class for text elements to fit dark mode */
+.text-dark, h1, h2, h3, h4, h5, h6, .display-font, .credentials-title {
+  color: var(--color-text-primary) !important;
+}
+
+/* Sidebar Dark Glassmorphism */
+.sidebar {
+  background-color: rgba(13, 17, 22, 0.7) !important;
+  border-right: 1px solid var(--color-border) !important;
+}
+
+/* Mobile Nav Dark Glassmorphism */
+.navbar-mobile {
+  background-color: rgba(13, 17, 22, 0.8) !important;
+  border-bottom: 1px solid var(--color-border) !important;
+}
+
+/* Card Overrides */
+.premium-card, .glass-panel, .presets-container {
+  background-color: var(--color-surface) !important;
+  border: 1px solid var(--color-border) !important;
+}
+
+.presets-container {
+  border-radius: 18px;
+}
+
+.preset-chip {
+  background: rgba(30, 41, 59, 0.5) !important;
+  border: 1px solid rgba(16, 185, 129, 0.25) !important;
+  color: var(--color-primary) !important;
+}
+
+.preset-chip:hover {
+  background: rgba(16, 185, 129, 0.15) !important;
+  border-color: var(--color-primary) !important;
+}
+
+.preset-chip.active-preset {
+  background: var(--color-primary) !important;
+  border-color: var(--color-primary) !important;
+  color: #ffffff !important;
+}
+
+/* Inputs and Forms Overrides */
+.form-control, .glass-input, select.glass-input, select.form-select {
+  background-color: var(--color-input-bg) !important;
+  border: 1px solid var(--color-border) !important;
+  color: var(--color-text-primary) !important;
+}
+
+.form-control:focus, .glass-input:focus, select.glass-input:focus, select.form-select:focus {
+  background-color: var(--color-input-focus-bg) !important;
+  border-color: var(--color-primary) !important;
+  box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.2) !important;
+}
+
+/* Dropdown Arrow color check */
+select.glass-input, select.form-select {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e") !important;
+}
+
+/* Metric Cards on Results */
+.metric-card {
+  background-color: var(--color-surface) !important;
+  border: 1px solid var(--color-border) !important;
+}
+
+.metric-card:hover {
+  background-color: rgba(24, 32, 49, 0.85) !important;
+  border-color: var(--color-primary) !important;
+}
+
+/* Tables and Telemetry */
+.table-responsive {
+  border: 1px solid var(--color-border) !important;
+}
+
+.table-dark th {
+  background-color: rgba(16, 185, 129, 0.1) !important;
+  color: #A7F3D0 !important;
+  border-bottom: 2px solid rgba(16, 185, 129, 0.2) !important;
+}
+
+.table-dark td {
+  background-color: rgba(17, 24, 39, 0.4) !important;
+  color: var(--color-text-primary) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+.table-hover tbody tr:hover td {
+  background-color: rgba(24, 32, 49, 0.7) !important;
+  color: var(--color-primary) !important;
+}
+
+/* Alert Boxes and Cards */
+.alert-premium {
+  background-color: var(--color-surface) !important;
+  border: 1px solid rgba(16, 185, 129, 0.15) !important;
+}
+
+.alert-premium:hover {
+  border-color: rgba(16, 185, 129, 0.3) !important;
+}
+
+/* Login box and split views */
+.login-video-overlay {
+  background: radial-gradient(circle at center, rgba(13, 17, 23, 0.5) 0%, rgba(9, 13, 22, 0.95) 100%) !important;
+}
+
+.login-container {
+  background: rgba(13, 17, 22, 0.8) !important;
+  border: 1px solid var(--color-border) !important;
+  box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.5) !important;
+}
+
+.login-right {
+  background: rgba(13, 17, 22, 0.9) !important;
+  border-left: 1px solid var(--color-border) !important;
+}
+
+.login-credentials-box {
+  background-color: rgba(16, 185, 129, 0.06) !important;
+  border: 1px dashed rgba(16, 185, 129, 0.3) !important;
+}
+
+.login-credentials-box:hover {
+  background-color: rgba(16, 185, 129, 0.1) !important;
+}
+
+.credentials-details code {
+  color: var(--color-text-primary) !important;
+  background-color: rgba(0, 0, 0, 0.3) !important;
+}
+
+.status-pill {
+  background-color: rgba(13, 17, 23, 0.85) !important;
+  border: 1px solid var(--color-border) !important;
+}
+
+/* Accent Gradients for Titles */
+.text-gradient {
+  background: linear-gradient(135deg, #A7F3D0 0%, #10B981 50%, #059669 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+}
+
+/* Fix generic card colors inside dashboard and predictions */
+.bg-light {
+  background-color: rgba(17, 24, 39, 0.6) !important;
+  border: 1px solid var(--color-border) !important;
+}
+
+/* Range indicators for warnings/alerts */
+.range-badge {
+  box-shadow: none !important;
+}
+.range-deficient {
+  background-color: rgba(239, 68, 68, 0.15) !important;
+  color: #F87171 !important;
+  border: 1px solid rgba(239, 68, 68, 0.3) !important;
+}
+.range-optimal {
+  background-color: rgba(16, 185, 129, 0.15) !important;
+  color: #34D399 !important;
+  border: 1px solid rgba(16, 185, 129, 0.3) !important;
+}
+.range-excessive {
+  background-color: rgba(245, 158, 11, 0.15) !important;
+  color: #FBBF24 !important;
+  border: 1px solid rgba(245, 158, 11, 0.3) !important;
 }

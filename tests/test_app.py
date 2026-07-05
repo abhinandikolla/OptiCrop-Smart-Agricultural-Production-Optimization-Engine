@@ -10,13 +10,23 @@ class OptiCropTestCase(unittest.TestCase):
         # Set Flask to testing mode
         app.config['TESTING'] = True
         app.config['WTF_CSRF_ENABLED'] = False
+        app.secret_key = 'test_secret_key'
         self.client = app.test_client()
+        with self.client.session_transaction() as sess:
+            sess['logged_in'] = True
 
     def test_home_page(self):
         response = self.client.get('/')
         self.assertEqual(response.status_code, 200)
         self.assertIn(b"OptiCrop", response.data)
         self.assertIn(b"Nitrogen", response.data)
+
+    def test_unauthenticated_redirect(self):
+        # Set up a clean client without logging in
+        unauth_client = app.test_client()
+        response = unauth_client.get('/')
+        self.assertEqual(response.status_code, 302)
+        self.assertIn('/login', response.location)
 
     def test_prediction_endpoint(self):
         # Post realistic parameters
